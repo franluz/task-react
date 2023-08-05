@@ -2,14 +2,18 @@ import React from 'react'
 import { Text, StyleSheet, View } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import ComunStyles from '../ComunStyles'
+import moment from 'moment';
+import 'moment/locale/pt-br'
 export default props => {
-    const doneOrNot = props.doneAt != null?{ textDecorationLine: 'line-through'}:{}
+    const doneOrNot = props.doneAt != null ? { textDecorationLine: 'line-through' } : {}
+    const date = props.doneAt !== undefined ? props.doneAt : props.estimanteAt
+    const formattedDate = moment(date, moment.RFC_2822).locale('pt-br').format('ddd, D [de] MMM')
     return (<View style={style.container}>
         <View style={style.checkContainer}>
             {getCheckView(props.doneAt)}
         </View>
-        <View><Text style={[style.desc,doneOrNot]}>{props.desc}</Text>
-            <Text >{props.estimateAt + ""}</Text>
+        <View><Text style={[style.desc, doneOrNot]}>{props.desc}</Text>
+            <Text style={style.date}>{formattedDate}</Text>
         </View>
     </View>)
 }
@@ -27,7 +31,7 @@ function getCheckView(doneAt) {
 }
 const style = StyleSheet.create({
     container: {
-        
+
         flexDirection: 'row',
         borderColor: "#AAA",
         borderBottomWidth: 1,
@@ -62,4 +66,9 @@ const style = StyleSheet.create({
         color: ComunStyles.colors.mainText,
         fontSize: 15
     },
+    date: {
+        fontFamily: ComunStyles.fontFamily,
+        color: ComunStyles.colors.subText,
+        fontSize: 12
+    }
 })
