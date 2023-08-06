@@ -7,10 +7,18 @@ export default class AddTask extends Component {
             <TouchableWithoutFeedback onPress={this.props.onCancel}>
                 <View style={styles.backgroud}></View>
             </TouchableWithoutFeedback>
+            <View style={styles.container}></View>
+            <TouchableWithoutFeedback onPress={this.props.onCancel}>
+                <View style={styles.backgroud}></View>
+            </TouchableWithoutFeedback>
         </Modal>)
     }
 }
 const styles = StyleSheet.create({
+    container:{
+        flex:1,
+        backgroundColor:'#FFF'
+    },
     backgroud: {
         flex: 1,
         backgroundColor: 'rgba(0,0, 0, 0.7)',
