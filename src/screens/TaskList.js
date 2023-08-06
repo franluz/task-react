@@ -6,10 +6,12 @@ import 'moment/locale/pt-br'
 import commonStyle from '../ComunStyles.js'
 import Task from '../components/Task'
 import Icon from 'react-native-vector-icons/FontAwesome5';
-
+import AddTask from './AdicionarTask'
 export default class TaskList extends Component {
     state = {
         showDoneTasks: true,
+        visibleTasks: [],
+        showAddTaskModal: true,
         tasks: [{
             id: Math.random(),
             desc: "Comprar vassoura",
@@ -23,8 +25,21 @@ export default class TaskList extends Component {
         },
         ]
     }
+    componentDidMount = () => {
+        this.filterTaks()
+    }
+    filterTaks = () => {
+        let visibleTasks = null
+        if (this.state.showDoneTasks) {
+            visibleTasks = [...this.state.tasks]
+        } else {
+            const pending = task => task.doneAt === null
+            visibleTasks = this.state.tasks.filter(pending)
+        }
+        this.setState({ visibleTasks })
+    }
     toggleFilter = () => {
-        this.setState({ showDoneTasks: !this.state.showDoneTasks })
+        this.setState({ showDoneTasks: !this.state.showDoneTasks }, this.filterTaks)
     }
     toggleTask = taskId => {
         const tasks = [...this.state.tasks]
@@ -33,12 +48,13 @@ export default class TaskList extends Component {
                 task.doneAt = task.doneAt ? null : new Date()
             }
         })
-        this.setState({ tasks })
+        this.setState({ tasks }, this.filterTaks)
     }
     render() {
         const today = moment().locale('pt-br').format('ddd, D [de] MMM')
         return (
             <View style={style.container}>
+                <AddTask isVisible={this.state.showAddTaskModal} onCancel={() => this.setState({ showAddTaskModal: false  })} />
                 <ImageBackground source={todayImage} style={style.backgound}  >
                     <View style={style.iconBar}>
                         <TouchableOpacity onPress={this.toggleFilter}>
@@ -48,7 +64,7 @@ export default class TaskList extends Component {
                     <View style={style.titlebar}><Text style={style.title}>Hoje</Text><Text style={style.subtitle}>{today}</Text></View>
                 </ImageBackground>
                 <View style={style.taskContainer}>
-                    <FlatList data={this.state.tasks} keyExtractor={item => `${item.id}`}
+                    <FlatList data={this.state.visibleTasks} keyExtractor={item => `${item.id}`}
                         renderItem={({ item }) => <Task {...item} toggleTask={this.toggleTask} />} />
                 </View>
             </View>)
@@ -86,6 +102,7 @@ const style = StyleSheet.create({
     iconBar: {
         flexDirection: 'row',
         marginHorizontal: 20,
-
+        justifyContent: 'flex-end',
+        marginTop: Platform.OS == 'ios' ? 30 : 10,
     },
 })
