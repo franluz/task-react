@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, FlatList, View, ImageBackground } from 'react-native'
+import { Text, StyleSheet, FlatList, View, ImageBackground, TouchableOpacity, Platform } from 'react-native'
 import todayImage from '../../assets/imgs/today.jpg'
 import moment from 'moment/moment'
 import 'moment/locale/pt-br'
 import commonStyle from '../ComunStyles.js'
 import Task from '../components/Task'
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 export default class TaskList extends Component {
     state = {
+        showDoneTasks: true,
         tasks: [{
             id: Math.random(),
             desc: "Comprar vassoura",
@@ -21,6 +23,9 @@ export default class TaskList extends Component {
         },
         ]
     }
+    toggleFilter = () => {
+        this.setState({ showDoneTasks: !this.state.showDoneTasks })
+    }
     toggleTask = taskId => {
         const tasks = [...this.state.tasks]
         tasks.forEach(task => {
@@ -32,15 +37,21 @@ export default class TaskList extends Component {
     }
     render() {
         const today = moment().locale('pt-br').format('ddd, D [de] MMM')
-        return (<View style={style.container}>
-            <ImageBackground source={todayImage} style={style.backgound}  >
-                <View style={style.titlebar}><Text style={style.title}>Hoje</Text><Text style={style.subtitle}>{today}</Text></View>
-            </ImageBackground>
-            <View style={style.taskContainer}>
-                <FlatList data={this.state.tasks} keyExtractor={item => `${item.id}`}
-                    renderItem={({ item }) => <Task {...item} toggleTask={this.toggleTask} />} />
-            </View>
-        </View>)
+        return (
+            <View style={style.container}>
+                <ImageBackground source={todayImage} style={style.backgound}  >
+                    <View style={style.iconBar}>
+                        <TouchableOpacity onPress={this.toggleFilter}>
+                            <Icon name={this.state.showDoneTasks ? 'eye' : 'eye-slash'} size={20} color={commonStyle.colors.secundary} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={style.titlebar}><Text style={style.title}>Hoje</Text><Text style={style.subtitle}>{today}</Text></View>
+                </ImageBackground>
+                <View style={style.taskContainer}>
+                    <FlatList data={this.state.tasks} keyExtractor={item => `${item.id}`}
+                        renderItem={({ item }) => <Task {...item} toggleTask={this.toggleTask} />} />
+                </View>
+            </View>)
     }
 }
 const style = StyleSheet.create({
@@ -50,8 +61,6 @@ const style = StyleSheet.create({
         color: commonStyle.colors.secundary,
         marginTop: 20,
         marginBottom: 20
-
-
     },
     container: {
         flex: 1
@@ -72,6 +81,11 @@ const style = StyleSheet.create({
         marginBottom: 30,
         fontFamily: commonStyle.fontFamily,
         color: commonStyle.colors.secundary,
+
+    },
+    iconBar: {
+        flexDirection: 'row',
+        marginHorizontal: 20,
 
     },
 })
