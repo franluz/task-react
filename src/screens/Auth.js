@@ -10,20 +10,43 @@ import {
 } from 'react-native'
 import backGroudImage from '../../assets/imgs/login.jpg'
 import ComunStyles from '../ComunStyles'
+import AuthInput from '../components/AuthInput'
+import { server, showError, showSucess } from '../commun'
+import axios from 'axios'
+const initialState ={
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    stageNew: false
+
+}
 export default class Auth extends Component {
     state = {
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        stageNew: false
-    }
+        ...initialState
+        }
     singinSignUp = () => {
         if (this.state.stageNew) {
-            Alert.alert('Sucesso!', 'Criar conta')
+            this.singup()
         } else {
             Alert.alert('Sucesso!', 'Logar')
         }
+    }
+    singup = async () => {
+        try {
+            await axios.post(`${server}/signup`, {
+                name: this.state.name,
+                email: this.state.email,
+                password: this.state.password,
+                confirmPassword: this.state.confirmPassword
+            })
+            Alert.alert('usuario cadastrado')
+            this.setState({...initialState})
+
+        } catch (err) {
+            showError(err)
+        }
+
     }
     render() {
         return (<ImageBackground source={backGroudImage} style={style.backgroud}>
@@ -34,19 +57,19 @@ export default class Auth extends Component {
                 </Text>
                 {
                     this.state.stageNew &&
-                    <TextInput placeholder='Nome' value={this.state.name}
+                    <AuthInput icon='user' placeholder='Nome' value={this.state.name}
                         style={style.input}
                         onChangeText={name => this.setState({ name })} />
 
                 }
-                <TextInput placeholder='E-mail' value={this.state.email} style={style.input}
+                <AuthInput icon='at' placeholder='E-mail' value={this.state.email} style={style.input}
                     onChangeText={email => this.setState({ email })} />
-                <TextInput placeholder='Senha' value={this.state.password}
+                <AuthInput icon='lock' placeholder='Senha' value={this.state.password}
                     secureTextEntry={true}
                     style={style.input}
                     onChangeText={password => this.setState({ password })} />
                 {this.state.stageNew &&
-                    <TextInput placeholder='Confirm Password' value={this.state.confirmPassword}
+                    <AuthInput icon='asterisk' placeholder='Confirm Password' value={this.state.confirmPassword}
                         style={style.input}
                         onChangeText={confirmPassword => this.setState({ confirmPassword })} />
                 }
@@ -94,7 +117,6 @@ const style = StyleSheet.create({
     input: {
         backgroundColor: '#fff',
         marginTop: 10,
-        padding: Platform.OS == 'ios' ? 15 : 10
 
     },
     backgroud: {
