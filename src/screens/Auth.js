@@ -13,7 +13,7 @@ import ComunStyles from '../ComunStyles'
 import AuthInput from '../components/AuthInput'
 import { server, showError, showSucess } from '../commun'
 import axios from 'axios'
-const initialState ={
+const initialState = {
     name: '',
     email: '',
     password: '',
@@ -24,12 +24,25 @@ const initialState ={
 export default class Auth extends Component {
     state = {
         ...initialState
-        }
+    }
+
     singinSignUp = () => {
         if (this.state.stageNew) {
             this.singup()
         } else {
-            Alert.alert('Sucesso!', 'Logar')
+            this.singin()
+        }
+    }
+    singin = async () => {
+        try {
+            const res = await axios.post(`${server}/signin`, {
+                email: this.state.email,
+                password: this.state.password
+            })
+            axios.defaults.headers.common['Authorization'] = `bearer ${res.data.token}`
+            this.props.navigation.navigate('Home')
+        } catch (e) {
+            showError(e)
         }
     }
     singup = async () => {
@@ -41,7 +54,7 @@ export default class Auth extends Component {
                 confirmPassword: this.state.confirmPassword
             })
             Alert.alert('usuario cadastrado')
-            this.setState({...initialState})
+            this.setState({ ...initialState })
 
         } catch (err) {
             showError(err)
@@ -49,6 +62,17 @@ export default class Auth extends Component {
 
     }
     render() {
+        const validations = []
+        validations.push(this.state.email && this.state.email.includes('@'))
+        validations.push(this.state.password && this.state.password.length >= 6)
+        if (this.state.stageNew) {
+            validations.push(this.state.name)
+            validations.push(this.state.name.trim().length >= 3)
+            validations.push(this.state.confirmPassword)
+            validations.push(this.state.confirmPassword === this.state.password)
+
+        }
+        const validForm = validations.reduce((t, a) => t && a)
         return (<ImageBackground source={backGroudImage} style={style.backgroud}>
             <Text style={style.title}>Tasks</Text>
             <View style={style.formContainer}>
@@ -71,10 +95,11 @@ export default class Auth extends Component {
                 {this.state.stageNew &&
                     <AuthInput icon='asterisk' placeholder='Confirm Password' value={this.state.confirmPassword}
                         style={style.input}
+                        secureTextEntry={true}
                         onChangeText={confirmPassword => this.setState({ confirmPassword })} />
                 }
-                <TouchableOpacity onPress={this.singinSignUp}>
-                    <View style={style.button}>
+                <TouchableOpacity onPress={this.singinSignUp} disabled={!validForm}>
+                    <View style={[style.button, validForm ? {} : { backgroundColor: '#AAA' }]}>
                         <Text style={style.buttonText}>{this.state.stageNew ? 'Registrar' : 'Entrar'}</Text>
                     </View>
                 </TouchableOpacity>
