@@ -13,7 +13,7 @@ import 'moment/locale/pt-br'
 import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler';
 export default props => {
     const doneOrNot = props.doneAt != null ? { textDecorationLine: 'line-through' } : {}
-    const date = props.doneAt !== undefined ? props.doneAt : props.estimanteAt
+    const date = (props.doneAt !== null && props.doneAt !== undefined) ? props.doneAt : props.estimateAt
     const formattedDate = moment(date).locale('pt-br').format('ddd, D [de] MMM')
     const getRightContent = () => {
         return (
